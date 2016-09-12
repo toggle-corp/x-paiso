@@ -29,7 +29,6 @@ public class Database {
         // without their email
         if (f_user.getEmail() != null) {
             mUser.child("email").setValue(f_user.getEmail());
-            mDatabase.child("emails").child(f_user.getEmail()).setValue(f_user.getUid());
         }
     }
 
@@ -140,11 +139,6 @@ public class Database {
                     ...
                 },
             },
-            ...
-        },
-        emails: {
-            adr1: id1,
-            adr2: id2,
             ...
         },
         transactions: {
