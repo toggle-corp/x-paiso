@@ -10,56 +10,38 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.support.annotation.NonNull;
-import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
-import com.google.android.gms.auth.api.Auth;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.squareup.picasso.Picasso;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class MainActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener {
+public class MainActivity extends AppCompatActivity {
 
-    private static final String TAG = "MainActivity";
-
-    private String mUsername = "";
-
-    private FirebaseAuth mFirebaseAuth;
-    private FirebaseUser mFirebaseUser;
-    private GoogleApiClient mGoogleApiClient;
-
+    private User mUser;
+    private Database mDatabase;
     private DrawerLayout mDrawerLayout;
     private NavigationView mNavigationView;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Initialize Firebase Auth
-        mFirebaseAuth = FirebaseAuth.getInstance();
-        mFirebaseUser = mFirebaseAuth.getCurrentUser();
-
-        if (mFirebaseUser == null) {
+        // Get logged in user or start Login Activity
+        mUser = new User(this);
+        if (mUser.getUser() == null) {
             // Not signed in, launch the Log In activity
             startActivity(new Intent(this, LoginActivity.class));
             finish();
             return;
         }
 
-        mUsername = mFirebaseUser.getDisplayName();
+        // Initialize the database
+        mDatabase = new Database(mUser);
 
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .enableAutoManage(this, this)
-                .addApi(Auth.GOOGLE_SIGN_IN_API)
-                .build();
-
+        // Initialize the nav drawer
         mDrawerLayout = (DrawerLayout)findViewById(R.id.drawer);
         mNavigationView = (NavigationView)findViewById(R.id.navigation_view);
         mNavigationView.setNavigationItemSelectedListener(
@@ -73,13 +55,15 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
                 }
         );
 
+        // Set the nav drawer header
         View header = mNavigationView.getHeaderView(0);
-        ((TextView)header.findViewById(R.id.username)).setText(mUsername);
-        ((TextView)header.findViewById(R.id.email)).setText(mFirebaseUser.getEmail());
+        ((TextView)header.findViewById(R.id.username)).setText(mUser.getUser().getDisplayName());
+        ((TextView)header.findViewById(R.id.email)).setText(mUser.getUser().getEmail());
         Picasso.with(this)
-                .load(mFirebaseUser.getPhotoUrl())
+                .load(mUser.getUser().getPhotoUrl())
                 .into((CircleImageView)header.findViewById(R.id.user_image));
 
+        // Initialize the toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -93,26 +77,12 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        switch (id) {
+        switch (item.getItemId()) {
             case android.R.id.home:
                 mDrawerLayout.openDrawer(GravityCompat.START);
                 return true;
 
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    private void logout() {
-        mFirebaseAuth.signOut();
-        Auth.GoogleSignInApi.signOut(mGoogleApiClient);
-        mFirebaseUser = null;
-        mUsername = "";
-        startActivity(new Intent(this, LoginActivity.class));
-    }
-
-    @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-        Log.d(TAG, "onConnectionFailed:" + connectionResult);
     }
 }
