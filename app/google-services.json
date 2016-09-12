@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "1032299703097",
+    "firebase_url": "https://paiso-cf9c0.firebaseio.com",
+    "project_id": "paiso-cf9c0",
+    "storage_bucket": "paiso-cf9c0.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1032299703097:android:6d034ac3eda3c147",
+        "android_client_info": {
+          "package_name": "com.togglecorp.paiso"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1032299703097-20gjlllfmj5bskf1esl5p9io2no02jbg.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.togglecorp.paiso",
+            "certificate_hash": "2ECA102F66972E49E4B2CD3556E1C01B0387D9AF"
+          }
+        },
+        {
+          "client_id": "1032299703097-qn8dm3706j830tmros2drbjh1056bas9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDu6M-eMthcnRUcLujDudNbz7y79DY91S4"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1032299703097-qn8dm3706j830tmros2drbjh1056bas9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
