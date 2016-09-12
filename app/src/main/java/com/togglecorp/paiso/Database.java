@@ -57,10 +57,18 @@ public class Database {
         if (contact.contact_id != null) {
             c.child("contact_id").setValue(contact.contact_id);
         }
-
+        if (contact.recent != null) {
+            c.child("recent").setValue(contact.recent);
+        }
+        if (contact.user_id != null) {
+            c.child("user_id").setValue(contact.user_id);
+        }
+        if (contact.photo_uri != null) {
+            c.child("photo_uri").setValue(contact.photo_uri.toString());
+        }
     }
 
-    HashMap<String, Transaction> mTransactions;
+    private HashMap<String, Transaction> mTransactions = new HashMap<>();
     public void getTransactions(final DatabaseListener<HashMap<String, Transaction>> listener) {
         listener.handle(mTransactions);
 
@@ -96,7 +104,7 @@ public class Database {
         });
     }
 
-    private HashMap<String, Contact> mContacts;
+    private HashMap<String, Contact> mContacts = new HashMap<>();
     public void getContacts(final DatabaseListener<HashMap<String, Contact>> listener) {
         listener.handle(mContacts);
 
@@ -126,11 +134,13 @@ public class Database {
                 email: adr1,
                 contacts: {
                     c1: {
-                        username: somebody
+                        username: somebody,
+                        recent: 1
                     },
                     c2: {
                         username: somebody else
                         contact_id: cid1
+                        recent: 2
                     }
                 },
                 transactions: {

@@ -21,6 +21,7 @@ public class MainActivity extends AppCompatActivity {
 
     private User mUser;
     private Database mDatabase;
+
     private DrawerLayout mDrawerLayout;
     private NavigationView mNavigationView;
 
@@ -72,6 +73,14 @@ public class MainActivity extends AppCompatActivity {
             actionBar.setHomeAsUpIndicator(R.drawable.ic_menu);
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
+
+        // Add button
+        findViewById(R.id.add_button).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(MainActivity.this, SelectPeopleActivity.class));
+            }
+        });
 
     }
 

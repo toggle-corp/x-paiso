@@ -14,7 +14,7 @@ android {
     defaultConfig {
         applicationId "com.togglecorp.paiso"
         minSdkVersion 21
-        targetSdkVersion 24
+        targetSdkVersion 22
         versionCode 1
         versionName "1.0"
     }

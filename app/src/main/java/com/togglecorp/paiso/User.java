@@ -1,10 +1,7 @@
 package com.togglecorp.paiso;
 
-import android.app.Activity;
-import android.content.Context;
-import android.content.Intent;
 import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 
 import com.google.android.gms.auth.api.Auth;
@@ -19,11 +16,9 @@ public class User implements GoogleApiClient.OnConnectionFailedListener {
 
     private FirebaseAuth mFirebaseAuth;
     private FirebaseUser mFirebaseUser;
-    private GoogleApiClient mGoogleApiClient;
+    private static GoogleApiClient mGoogleApiClient;
 
-    private AppCompatActivity mActivity;
-
-    public User(AppCompatActivity activity) {
+    public User(FragmentActivity activity) {
         // Initialize Firebase Auth
         mFirebaseAuth = FirebaseAuth.getInstance();
         mFirebaseUser = mFirebaseAuth.getCurrentUser();
@@ -32,12 +27,12 @@ public class User implements GoogleApiClient.OnConnectionFailedListener {
             return;
         }
 
-        mGoogleApiClient = new GoogleApiClient.Builder(activity)
-                .enableAutoManage(activity, this)
-                .addApi(Auth.GOOGLE_SIGN_IN_API)
-                .build();
-
-        mActivity = activity;
+        if (mGoogleApiClient == null) {
+            mGoogleApiClient = new GoogleApiClient.Builder(activity)
+                    .enableAutoManage(activity, this)
+                    .addApi(Auth.GOOGLE_SIGN_IN_API)
+                    .build();
+        }
     }
 
     @Override
