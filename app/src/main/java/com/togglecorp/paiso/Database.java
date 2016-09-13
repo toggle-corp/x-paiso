@@ -152,7 +152,7 @@ public class Database {
                     Transaction tt = new Transaction(Database.this, t);
                     if (!tt.invalid)
                         mTransactions.put(
-                                data.getKey(),
+                                t.getKey(),
                                 tt
                         );
                 }

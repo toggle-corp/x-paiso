@@ -28,8 +28,8 @@ public class Transaction {
 
         for (final DataSnapshot d: data.child("debts").getChildren()) {
 
-            if (!d.child("by").exists() ||
-                    !d.child("to").exists() ||
+            if ((!d.child("by").exists() && !d.child("by_uid").exists()) ||
+                    (!d.child("to").exists() && !d.child("to_uid").exists()) ||
                     !d.child("amount").exists() ||
                     !d.child("unit").exists()) {
 
