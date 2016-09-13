@@ -11,17 +11,23 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <include
-            layout="@layout/layout_toolbar"
-            android:layout_height="wrap_content"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:id="@+id/toolbar" />
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
-        <FrameLayout
-            android:id="@+id/frame_content"
-            android:fitsSystemWindows="true"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            <include
+                layout="@layout/layout_toolbar"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:id="@+id/toolbar" />
+
+            <FrameLayout
+                android:id="@+id/frame_content"
+                android:fitsSystemWindows="true"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+        </LinearLayout>
 
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/add_button"

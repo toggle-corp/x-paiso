@@ -12,6 +12,10 @@ public class Contact {
 
     public Contact() {}
 
+    public Contact(String username) {
+        this.username  = username;
+    }
+
     public Contact(DataSnapshot data) {
         username = data.child("username").getValue(String.class);
 

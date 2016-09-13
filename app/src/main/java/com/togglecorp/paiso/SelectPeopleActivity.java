@@ -22,7 +22,6 @@ public class SelectPeopleActivity extends AppCompatActivity {
 
     private User mUser;
     private Database mDatabase;
-
     private UserListAdapter mAdapter;
 
     @Override

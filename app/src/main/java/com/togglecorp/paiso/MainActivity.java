@@ -21,13 +21,20 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final String TAG = "Main Activity";
+
     private User mUser;
-    private Database mDatabase;
 
     private DrawerLayout mDrawerLayout;
     private NavigationView mNavigationView;
 
     private static FirebaseDatabase mFDb;
+
+    private TransactionsFragment mTransactionsFragment = new TransactionsFragment();
+
+    public User getUser() {
+        return mUser;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,9 +55,6 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        // Initialize the database
-        mDatabase = new Database(mUser);
-
         // Initialize the nav drawer
         mDrawerLayout = (DrawerLayout)findViewById(R.id.drawer);
         mNavigationView = (NavigationView)findViewById(R.id.navigation_view);
@@ -58,12 +62,19 @@ public class MainActivity extends AppCompatActivity {
                 new NavigationView.OnNavigationItemSelectedListener() {
                     @Override
                     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+                        if (menuItem.getItemId() == R.id.nav_transactions) {
+                            getFragmentManager().beginTransaction()
+                                    .replace(R.id.frame_content, mTransactionsFragment)
+                                    .commit();
+                        }
+
                         menuItem.setChecked(true);
                         mDrawerLayout.closeDrawers();
                         return true;
                     }
                 }
         );
+        mNavigationView.setCheckedItem(R.id.nav_summary);
 
         // Set the nav drawer header
         View header = mNavigationView.getHeaderView(0);
