@@ -1,17 +1,16 @@
 package com.togglecorp.paiso;
 
-import android.content.ContentUris;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.ContactsContract;
-import android.support.annotation.NonNull;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -30,6 +29,18 @@ public class SelectPeopleActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_select_people);
+
+        // Initialize the toolbar
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.setHomeButtonEnabled(true);
+        }
+
+        setTitle("Select people");
 
         // Initialize user and database.
         mUser = new User(this);
@@ -57,6 +68,22 @@ public class SelectPeopleActivity extends AppCompatActivity {
                 EditText username = (EditText)findViewById(R.id.new_username);
                 addContact(username.getText().toString());
                 username.setText("");
+            }
+        });
+
+        findViewById(R.id.done).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (mAdapter.getSelections().size() == 0) {
+                    Toast.makeText(SelectPeopleActivity.this, "You haven't selected any contact",
+                            Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                AddTransactionActivity.mContacts = mAdapter.getContacts();
+                AddTransactionActivity.mSelectedContacts = mAdapter.getSelections();
+                startActivity(new Intent(SelectPeopleActivity.this, AddTransactionActivity.class));
+                finish();
             }
         });
 
@@ -98,24 +125,35 @@ public class SelectPeopleActivity extends AppCompatActivity {
         String id = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
         String username =
                 cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
-        Uri photoUrl = Uri.parse(
-                cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Email.PHOTO_URI))
-        );
+        String photoUrl =
+                cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Email.PHOTO_URI));
 
-
-        // TODO: Add only if id is not already added
 
         Contact contact = new Contact();
-        contact.user_id = id;
+        contact.contact_id = id;
         contact.username = username;
-        contact.photo_uri = photoUrl;
+        if (photoUrl != null)
+            contact.photo_uri = Uri.parse(photoUrl);
         mDatabase.addContact(contact);
     }
 
     public void addContact(String username) {
+        if (username.isEmpty())
+            return;
         Contact contact = new Contact();
         contact.username = username;
         mDatabase.addContact(contact);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                return true;
+
+        }
+        return super.onOptionsItemSelected(item);
     }
 
 }

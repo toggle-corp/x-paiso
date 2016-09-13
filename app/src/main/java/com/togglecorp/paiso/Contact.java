@@ -1,7 +1,6 @@
 package com.togglecorp.paiso;
 
 import android.net.Uri;
-import android.util.Log;
 
 import com.google.firebase.database.DataSnapshot;
 
@@ -17,12 +16,8 @@ public class Contact {
     public Contact(DataSnapshot data) {
         username = data.child("username").getValue(String.class);
 
-        if (data.child("contact_id").exists()) {
+        if (data.child("contact_id").exists())
             contact_id = data.child("contact_id").getValue(String.class);
-
-            // TODO: get emails for the contact and set user_id for user with the first email that exists
-        }
-
         if (data.child("recent").exists())
             recent = data.child("recent").getValue(Integer.class);
         if (data.child("user_id").exists())

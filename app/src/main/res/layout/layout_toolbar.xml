@@ -5,6 +5,7 @@
     android:layout_height="?attr/actionBarSize"
     android:background="@color/colorPrimary"
     android:fitsSystemWindows="true"
-    android:theme="@style/ThemeOverlay.AppCompat.Dark"
+    android:theme="@style/AppTheme.AppBarOverlay"
+    android:popupTheme="@style/AppTheme.PopupOverlay"
     android:elevation="4dp">
 </android.support.v7.widget.Toolbar>

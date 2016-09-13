@@ -13,4 +13,9 @@
     <string name="navigation_drawer_transactions">Transactions</string>
     <string name="navigation_drawer_peoples">Peoples</string>
     <string name="navigation_drawer_groups">Groups</string>
+    <string name="amount">Amount</string>
+    <string name="unit">Unit</string>
+    <string name="default_unit">Rs.</string>
+    <string name="transaction_name">Transaction Name</string>
+    <string name="debt_by">Debt by:</string>
 </resources>

@@ -33,10 +33,12 @@ public class Database {
     }
 
     public void addTransaction(Transaction transaction) {
-        DatabaseReference t = mDatabase.child("transactions").push();
-        t.child("title").setValue(transaction.title);
+        addTransaction(transaction, mUser);
+    }
 
-        DatabaseReference u = mDatabase.child("users");
+    private void addTransaction(Transaction transaction, DatabaseReference user) {
+        DatabaseReference t = user.child("transactions").push();
+        t.child("title").setValue(transaction.title);
 
         for (Debt debt: transaction.debts) {
             DatabaseReference d = t.child("debts").push();
@@ -46,13 +48,36 @@ public class Database {
             d.child("amount").setValue(debt.amount);
             d.child("unit").setValue(debt.unit);
 
-            u.child(debt.by).child("transactions").child(t.getKey()).setValue(true);
-            u.child(debt.to).child("transactions").child(t.getKey()).setValue(true);
+            if (!debt.by.equals("@me"))
+                setTransactionOfContact(debt.by, transaction);
+            if (!debt.to.equals("@me"))
+                setTransactionOfContact(debt.to, transaction);
+        }
+    }
+
+    private void setTransactionOfContact(String contact_id, Transaction transaction) {
+        if (mContacts.containsKey(contact_id)) {
+            Contact c = mContacts.get(contact_id);
+            if (c.user_id != null) {
+                addTransaction(transaction, mDatabase.child("users").child(c.user_id));
+                return;
+            }
+            else if (c.contact_id != null){
+                // TODO: Get contact's email and check if user with that email exists
+                // TODO: if so, add transaction to that user
+            }
         }
     }
 
     public void addContact(Contact contact) {
-        DatabaseReference c = mUser.child("contacts").push();
+        DatabaseReference c;
+
+        if (contact.contact_id != null)
+            // Using contact_id makes sure that same contact isn't added twice
+            c = mUser.child("contacts").child(contact.contact_id);
+        else
+            c = mUser.child("contacts").push();
+
         c.child("username").setValue(contact.username);
         if (contact.contact_id != null) {
             c.child("contact_id").setValue(contact.contact_id);
@@ -76,25 +101,12 @@ public class Database {
             @Override
             public void onDataChange(DataSnapshot data) {
                 for (DataSnapshot t: data.getChildren()) {
-                    mDatabase.child("transactions").child(t.getKey())
-                            .addValueEventListener(new ValueEventListener() {
-
-                                @Override
-                                public void onDataChange(DataSnapshot data) {
-                                    mTransactions.put(
-                                            data.getKey(),
-                                            new Transaction(data)
-                                    );
-                                    listener.handle(mTransactions);
-                                }
-
-                                @Override
-                                public void onCancelled(DatabaseError databaseError) {
-                                    Log.w(TAG, "load transactions cancelled",
-                                            databaseError.toException());
-                                }
-                            });
+                    mTransactions.put(
+                            data.getKey(),
+                            new Transaction(t)
+                    );
                 }
+                listener.handle(mTransactions);
             }
 
             @Override
@@ -144,31 +156,26 @@ public class Database {
                     }
                 },
                 transactions: {
-                    t1: true
-                    t2: true
-                    ...
+                    t1: {
+                        title: "optional"
+                        debts: {
+                            a1: {
+                                by: u1
+                                to: u2
+                                amount: xxx
+                                unit: "Rs."
+                            }
+                            a2: {
+                                by: u1
+                                to: u3
+                                amount: xxx
+                            }
+                        }
+                    }
                 },
             },
             ...
         },
-        transactions: {
-            t1: {
-                title: "optional"
-                debts: {
-                    a1: {
-                        by: u1
-                        to: u2
-                        amount: xxx
-                        unit: "Rs."
-                    }
-                    a2: {
-                        by: u1
-                        to: u3
-                        amount: xxx
-                    }
-                }
-            }
-        }
      */
 
 }

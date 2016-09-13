@@ -2,13 +2,10 @@ package com.togglecorp.paiso;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-
-import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -23,10 +20,19 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.ViewHo
     private Context mContext;
     private HashMap<String, Contact> mContacts;
     private List<String> mContactKeys;
+    private List<String> mSelections = new ArrayList<>();
 
     public UserListAdapter(Context context) {
         mContext = context;
         setContacts(new HashMap<String, Contact>());
+    }
+
+    public HashMap<String, Contact> getContacts() {
+        return mContacts;
+    }
+
+    public List<String> getSelections() {
+        return mSelections;
     }
 
     public void setContacts(HashMap<String, Contact> contacts) {
@@ -67,6 +73,8 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.ViewHo
         } else {
             holder.avatar.setImageDrawable(mContext.getDrawable(R.mipmap.ic_avatar));
         }
+
+        holder.root.setPressed(mSelections.contains(mContactKeys.get(position)));
     }
 
     @Override
@@ -76,15 +84,29 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.ViewHo
 
     public class ViewHolder extends RecyclerView.ViewHolder {
 
+        public View root;
         public TextView name;
         public TextView extra;
         public CircleImageView avatar;
 
         public ViewHolder(View itemView) {
             super(itemView);
+            root = itemView;
             name = (TextView)itemView.findViewById(R.id.name);
             extra = (TextView)itemView.findViewById(R.id.extra);
             avatar = (CircleImageView)itemView.findViewById(R.id.avatar);
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    String cid = mContactKeys.get(getAdapterPosition());
+                    if (mSelections.contains(cid))
+                        mSelections.remove(cid);
+                    else
+                        mSelections.add(cid);
+                    notifyDataSetChanged();
+                }
+            });
         }
     }
 }

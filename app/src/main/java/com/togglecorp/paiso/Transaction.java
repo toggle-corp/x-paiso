@@ -9,7 +9,7 @@ public class Transaction {
     public String title;
     public List<Debt> debts = new ArrayList<>();
 
-    public Transaction() {};
+    public Transaction() {}
 
     public Transaction(DataSnapshot data) {
         title = data.child("title").getValue(String.class);
@@ -17,7 +17,7 @@ public class Transaction {
             debts.add(new Debt(
                     d.child("by").getValue(String.class),
                     d.child("to").getValue(String.class),
-                    d.child("amount").getValue(Integer.class),
+                    d.child("amount").getValue(Float.class),
                     d.child("unit").getValue(String.class)
             ));
         }

@@ -20,7 +20,7 @@
             android:layout_gravity="end"
             android:textColor="#FFF"
             android:background="?android:attr/selectableItemBackground"
-            android:text="Next"/>
+            android:text="Done"/>
     </android.support.v7.widget.Toolbar>
 
     <LinearLayout
@@ -31,36 +31,38 @@
         android:paddingTop="@dimen/activity_vertical_margin"
         android:paddingLeft="@dimen/activity_horizontal_margin"
         android:paddingRight="@dimen/activity_horizontal_margin">
-
-        <LinearLayout
+        <EditText
+            android:id="@+id/title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:hint="@string/transaction_name"/>
 
-            <EditText
-                android:id="@+id/new_username"
-                android:layout_weight="1"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:hint="New user"/>
 
-            <ImageButton
-                android:id="@+id/add_user_button"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:src="@drawable/ic_plus"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/debt_by"/>
+        <ToggleButton
+            android:id="@+id/debt_by"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textOff="Them"
+            android:textOn="Me"/>
 
-            <ImageButton
-                android:id="@+id/add_contact_button"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:src="@drawable/ic_contact"/>
-        </LinearLayout>
-
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/contacts_list"
+        <EditText
+            android:inputType="numberDecimal"
+            android:id="@+id/amount"
+            android:hint="@string/amount"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_height="wrap_content" />
+
+        <EditText
+            android:id="@+id/unit"
+            android:hint="@string/unit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/default_unit"/>
+
     </LinearLayout>
 
 </LinearLayout>
