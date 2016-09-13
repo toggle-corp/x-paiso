@@ -12,7 +12,7 @@
         android:textSize="16sp"
         android:paddingTop="16dp"
         android:paddingBottom="4dp"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
         android:text="Protection Money"/>
 </LinearLayout>

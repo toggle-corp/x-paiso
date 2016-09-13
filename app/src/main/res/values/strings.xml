@@ -16,6 +16,6 @@
     <string name="amount">Amount</string>
     <string name="unit">Unit</string>
     <string name="default_unit">Rs.</string>
-    <string name="transaction_name">Transaction Name</string>
+    <string name="transaction_name">Title</string>
     <string name="debt_by">Debt by:</string>
 </resources>
