@@ -121,7 +121,7 @@ public class SelectPeopleActivity extends AppCompatActivity {
         }
     }
 
-    private void addContact(Cursor cursor) {
+    public static Contact addContact(Database database, Cursor cursor) {
         String id = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
         String username =
                 cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
@@ -134,7 +134,12 @@ public class SelectPeopleActivity extends AppCompatActivity {
         contact.username = username;
         if (photoUrl != null)
             contact.photo_uri = Uri.parse(photoUrl);
-        mDatabase.addContact(contact);
+        database.addContact(contact);
+        return contact;
+    }
+
+    private void addContact(Cursor cursor) {
+        addContact(mDatabase, cursor);
     }
 
     public void addContact(String username) {

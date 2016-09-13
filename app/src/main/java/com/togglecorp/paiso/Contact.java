@@ -8,7 +8,6 @@ public class Contact {
     public String username;
     public String contact_id = null;
     public Integer recent = null;
-    public String user_id = null;
     public Uri photo_uri = null;
 
     public Contact() {}
@@ -20,8 +19,6 @@ public class Contact {
             contact_id = data.child("contact_id").getValue(String.class);
         if (data.child("recent").exists())
             recent = data.child("recent").getValue(Integer.class);
-        if (data.child("user_id").exists())
-            user_id = data.child("user_id").getValue(String.class);
         if (data.child("photo_uri").exists())
             photo_uri = Uri.parse(data.child("photo_uri").getValue(String.class));
     }

@@ -18,7 +18,6 @@ public class AddTransactionActivity extends AppCompatActivity {
     public static HashMap<String, Contact> mContacts;
     public static List<String> mSelectedContacts;
 
-    private User mUser;
     private Database mDatabase;
 
     @Override
@@ -39,13 +38,13 @@ public class AddTransactionActivity extends AppCompatActivity {
         setTitle("Add transaction");
 
         // Initialize user and database.
-        mUser = new User(this);
-        if (mUser.getUser() == null) {
+        User user = new User(this);
+        if (user.getUser() == null) {
             Toast.makeText(this, "User not logged in", Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
-        mDatabase = new Database(mUser);
+        mDatabase = new Database(user);
 
         // Set the done handler
         findViewById(R.id.done).setOnClickListener(new View.OnClickListener() {
@@ -64,9 +63,9 @@ public class AddTransactionActivity extends AppCompatActivity {
                 for (String cid: mSelectedContacts) {
                     Debt debt;
                     if (byThem)
-                        debt = new Debt(cid, "@me", amount, unit);
-                    else
                         debt = new Debt("@me", cid, amount, unit);
+                    else
+                        debt = new Debt(cid, "@me", amount, unit);
                     transaction.debts.add(debt);
                 }
 

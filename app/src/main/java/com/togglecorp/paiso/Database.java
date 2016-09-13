@@ -1,5 +1,8 @@
 package com.togglecorp.paiso;
 
+import android.content.Context;
+import android.database.Cursor;
+import android.provider.ContactsContract;
 import android.util.Log;
 
 import com.google.firebase.auth.FirebaseUser;
@@ -16,8 +19,14 @@ public class Database {
 
     private DatabaseReference mDatabase;
     private DatabaseReference mUser;
+    private Context mContext;
+
+    public Context getContext() {
+        return mContext;
+    }
 
     public Database(User user) {
+        mContext = user.getContext();
         mDatabase = FirebaseDatabase.getInstance().getReference();
         FirebaseUser f_user = user.getUser();
         mUser = mDatabase.child("users").child(f_user.getUid());
@@ -34,6 +43,13 @@ public class Database {
 
     public void addTransaction(Transaction transaction) {
         addTransaction(transaction, mUser);
+
+        for (Debt debt: transaction.debts) {
+            if (!debt.by.equals("@me"))
+                setTransactionOfContact(debt.by, transaction);
+            if (!debt.to.equals("@me"))
+                setTransactionOfContact(debt.to, transaction);
+        }
     }
 
     private void addTransaction(Transaction transaction, DatabaseReference user) {
@@ -43,28 +59,63 @@ public class Database {
         for (Debt debt: transaction.debts) {
             DatabaseReference d = t.child("debts").push();
 
-            d.child("by").setValue(debt.by);
-            d.child("to").setValue(debt.to);
+            if (user.equals(mUser)) {
+                d.child("by").setValue(debt.by);
+                d.child("to").setValue(debt.to);
+            } else {
+                if (debt.by.equals("@me")) {
+                    d.child("by_uid").setValue(mUser.getKey());
+                    d.child("to").setValue("@me");
+                } else {
+                    d.child("by").setValue("@me");
+                    d.child("to_uid").setValue(mUser.getKey());
+                }
+            }
             d.child("amount").setValue(debt.amount);
             d.child("unit").setValue(debt.unit);
-
-            if (!debt.by.equals("@me"))
-                setTransactionOfContact(debt.by, transaction);
-            if (!debt.to.equals("@me"))
-                setTransactionOfContact(debt.to, transaction);
         }
     }
 
-    private void setTransactionOfContact(String contact_id, Transaction transaction) {
+    private void setTransactionOfContact(String contact_id, final Transaction transaction) {
         if (mContacts.containsKey(contact_id)) {
             Contact c = mContacts.get(contact_id);
-            if (c.user_id != null) {
-                addTransaction(transaction, mDatabase.child("users").child(c.user_id));
-                return;
-            }
-            else if (c.contact_id != null){
-                // TODO: Get contact's email and check if user with that email exists
-                // TODO: if so, add transaction to that user
+            if (c.contact_id != null){
+                // Get contact's email and check if user with that email exists
+                // if so, add transaction to that user
+                Cursor cursor = mContext.getContentResolver().query(
+                        ContactsContract.CommonDataKinds.Email.CONTENT_URI,
+                        null,
+                        ContactsContract.Contacts._ID + " = ?",
+                        new String[]{c.contact_id},
+                        null
+                );
+
+                if (cursor != null) {
+                    if (cursor.moveToFirst()) {
+                        final String email = cursor.getString(cursor.getColumnIndex(
+                                ContactsContract.CommonDataKinds.Email.DATA
+                        ));
+                        mDatabase.child("users").orderByChild("email").equalTo(email)
+                                .addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(DataSnapshot dataSnapshot) {
+                                        if (dataSnapshot.exists()) {
+                                            for (DataSnapshot d: dataSnapshot.getChildren()) {
+                                                addTransaction(transaction, d.getRef());
+                                            }
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onCancelled(DatabaseError databaseError) {
+                                        Log.w(TAG, "load user's emails cancelled",
+                                                databaseError.toException());
+                                    }
+                                });
+
+                    }
+                    cursor.close();
+                }
             }
         }
     }
@@ -85,15 +136,12 @@ public class Database {
         if (contact.recent != null) {
             c.child("recent").setValue(contact.recent);
         }
-        if (contact.user_id != null) {
-            c.child("user_id").setValue(contact.user_id);
-        }
         if (contact.photo_uri != null) {
             c.child("photo_uri").setValue(contact.photo_uri.toString());
         }
     }
 
-    private HashMap<String, Transaction> mTransactions = new HashMap<>();
+    private static HashMap<String, Transaction> mTransactions = new HashMap<>();
     public void getTransactions(final DatabaseListener<HashMap<String, Transaction>> listener) {
         listener.handle(mTransactions);
 
@@ -103,7 +151,7 @@ public class Database {
                 for (DataSnapshot t: data.getChildren()) {
                     mTransactions.put(
                             data.getKey(),
-                            new Transaction(t)
+                            new Transaction(Database.this, t)
                     );
                 }
                 listener.handle(mTransactions);
@@ -116,7 +164,7 @@ public class Database {
         });
     }
 
-    private HashMap<String, Contact> mContacts = new HashMap<>();
+    private static HashMap<String, Contact> mContacts = new HashMap<>();
     public void getContacts(final DatabaseListener<HashMap<String, Contact>> listener) {
         listener.handle(mContacts);
 
@@ -131,7 +179,7 @@ public class Database {
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Log.w(TAG, "load transactions cancelled", databaseError.toException());
+                Log.w(TAG, "load contacts cancelled", databaseError.toException());
             }
         });
     }
@@ -160,14 +208,14 @@ public class Database {
                         title: "optional"
                         debts: {
                             a1: {
-                                by: u1
-                                to: u2
+                                by: @me
+                                to: u2 (contact_id)
                                 amount: xxx
                                 unit: "Rs."
                             }
                             a2: {
-                                by: u1
-                                to: u3
+                                by_uid: u1 (user_id)
+                                to: @me
                                 amount: xxx
                             }
                         }
