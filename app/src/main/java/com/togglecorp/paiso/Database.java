@@ -149,10 +149,12 @@ public class Database {
             @Override
             public void onDataChange(DataSnapshot data) {
                 for (DataSnapshot t: data.getChildren()) {
-                    mTransactions.put(
-                            data.getKey(),
-                            new Transaction(Database.this, t)
-                    );
+                    Transaction tt = new Transaction(Database.this, t);
+                    if (!tt.invalid)
+                        mTransactions.put(
+                                data.getKey(),
+                                tt
+                        );
                 }
                 listener.handle(mTransactions);
             }
@@ -172,7 +174,9 @@ public class Database {
             @Override
             public void onDataChange(DataSnapshot data) {
                 for (DataSnapshot c: data.getChildren()) {
-                    mContacts.put(c.getKey(), new Contact(c));
+                    Contact cc = new Contact(c);
+                    if (!cc.invalid)
+                        mContacts.put(c.getKey(), cc);
                 }
                 listener.handle(mContacts);
             }

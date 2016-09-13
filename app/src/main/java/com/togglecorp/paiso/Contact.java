@@ -10,6 +10,8 @@ public class Contact {
     public Integer recent = null;
     public Uri photo_uri = null;
 
+    public boolean invalid = false;
+
     public Contact() {}
 
     public Contact(String username) {
@@ -17,6 +19,11 @@ public class Contact {
     }
 
     public Contact(DataSnapshot data) {
+        if (!data.child("username").exists()) {
+            invalid = true;
+            return;
+        }
+
         username = data.child("username").getValue(String.class);
 
         if (data.child("contact_id").exists())

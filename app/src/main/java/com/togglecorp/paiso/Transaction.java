@@ -14,11 +14,28 @@ public class Transaction {
     public String title;
     public List<Debt> debts = new ArrayList<>();
 
+    public boolean invalid = false;
+
     public Transaction() {}
 
     public Transaction(final Database db, final DataSnapshot data) {
         title = data.child("title").getValue(String.class);
+
+        if (!data.child("debts").exists()) {
+            invalid = true;
+            return;
+        }
+
         for (final DataSnapshot d: data.child("debts").getChildren()) {
+
+            if (!d.child("by").exists() ||
+                    !d.child("to").exists() ||
+                    !d.child("amount").exists() ||
+                    !d.child("unit").exists()) {
+
+                invalid = true;
+                return;
+            }
 
             // Check if to_uid and by_uid are present instead of to and by
             // then add contact for that user, then add debt
