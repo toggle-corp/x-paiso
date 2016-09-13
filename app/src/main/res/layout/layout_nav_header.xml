@@ -7,30 +7,35 @@
     android:gravity="bottom"
     android:layout_height="@dimen/nav_header_height">
 
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/user_image"
+        android:src="@drawable/ic_avatar"
+        android:layout_marginLeft="16dp"
+        android:layout_width="64dp"
+        android:layout_height="64dp" />
+
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="56dp"
         android:orientation="vertical"
-        android:gravity="bottom"
+        android:gravity="center"
         android:paddingLeft="16dp"
         android:paddingRight="16dp"
         android:layout_marginBottom="8dp">
-        <de.hdodenhof.circleimageview.CircleImageView
-            android:id="@+id/user_image"
-            android:layout_width="70dp"
-            android:layout_height="70dp"
-            />
+
         <TextView
             android:id="@+id/username"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fontFamily="sans-serif-medium"
+            android:text="Ankit Mehta"
             android:textColor="#FFF"
             android:textAllCaps="true" />
         <TextView
             android:id="@+id/email"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:text="fren.ankit@gmail.com"
             android:textColor="#FFF" />
     </LinearLayout>
 
