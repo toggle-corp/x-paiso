@@ -71,7 +71,7 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.ViewHo
         if (contact.photo_uri != null) {
             holder.avatar.setImageURI(contact.photo_uri);
         } else {
-            holder.avatar.setImageDrawable(mContext.getDrawable(R.mipmap.ic_avatar));
+            holder.avatar.setImageDrawable(mContext.getDrawable(R.drawable.ic_avatar));
         }
 
         holder.root.setPressed(mSelections.contains(mContactKeys.get(position)));
