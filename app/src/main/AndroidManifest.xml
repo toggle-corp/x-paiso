@@ -18,8 +18,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".SelectPeopleActivity" />
-        <activity android:name=".AddTransactionActivity"></activity>
+        <activity android:name=".SelectPeopleActivity"
+            android:windowSoftInputMode="adjustPan"/>
+        <activity android:name=".AddTransactionActivity"/>
     </application>
 
 </manifest>

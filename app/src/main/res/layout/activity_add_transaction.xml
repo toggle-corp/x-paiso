@@ -20,7 +20,7 @@
             android:layout_gravity="end"
             android:textColor="#FFF"
             android:background="?android:attr/selectableItemBackground"
-            android:text="Done"/>
+            android:text="@string/done"/>
     </android.support.v7.widget.Toolbar>
 
     <LinearLayout
@@ -37,7 +37,7 @@
             android:layout_marginTop="16dp"
             android:layout_marginBottom="10dp"
             android:textColor="@color/colorAccent"
-            android:text="Enter transaction detail"/>
+            android:text="@string/enter_transaction_message"/>
 
         <EditText
             android:id="@+id/title"
@@ -60,31 +60,13 @@
             android:textOn="Me"
             android:layout_marginBottom="16dp"/>
 
-        <LinearLayout
+        <EditText
+            android:inputType="numberDecimal"
+            android:id="@+id/amount"
+            android:hint="@string/amount"
+            android:layout_marginBottom="16dp"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <EditText
-                android:id="@+id/unit"
-                android:hint="@string/unit"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.4"
-                android:text="@string/default_unit"/>
-
-            <EditText
-                android:inputType="numberDecimal"
-                android:id="@+id/amount"
-                android:hint="@string/amount"
-                android:layout_marginBottom="16dp"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.6"/>
-
-
-
-        </LinearLayout>
+            android:layout_height="wrap_content"/>
 
 
     </LinearLayout>

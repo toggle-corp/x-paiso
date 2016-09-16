@@ -92,6 +92,8 @@ public class SelectPeopleActivity extends AppCompatActivity {
         contactsList.setLayoutManager(new LinearLayoutManager(this));
         contactsList.setAdapter(mAdapter);
 
+        mAdapter.setContacts(new HashMap<String, Contact>());
+
         // Get contacts
         mDatabase.getContacts(new DatabaseListener<HashMap<String, Contact>>() {
             @Override

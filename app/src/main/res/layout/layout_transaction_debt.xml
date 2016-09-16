@@ -25,11 +25,6 @@
         android:gravity="center"
         android:layout_weight="0.4">
         <TextView
-            android:id="@+id/unit"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="$"/>
-        <TextView
             android:id="@+id/amount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

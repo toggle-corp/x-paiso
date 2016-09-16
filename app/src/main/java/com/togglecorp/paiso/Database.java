@@ -20,16 +20,18 @@ public class Database {
     private DatabaseReference mDatabase;
     private DatabaseReference mUser;
     private Context mContext;
+    private String mUserId;
 
-    public Context getContext() {
-        return mContext;
-    }
+//    public Context getContext() {
+//        return mContext;
+//    }
 
     public Database(User user) {
         mContext = user.getContext();
         mDatabase = FirebaseDatabase.getInstance().getReference();
         FirebaseUser f_user = user.getUser();
         mUser = mDatabase.child("users").child(f_user.getUid());
+        mUserId = f_user.getUid();
 
         // Create or update the user data
         mUser.child("username").setValue(f_user.getDisplayName());
@@ -41,82 +43,46 @@ public class Database {
         }
     }
 
+
+    // Make sure getContacts has been called before calling this method
     public void addTransaction(Transaction transaction) {
-        addTransaction(transaction, mUser);
+        DatabaseReference t = mDatabase.child("transactions").push();
+        mUser.child("transactions").child(t.getKey()).setValue(true);
 
-        for (Debt debt: transaction.debts) {
-            if (!debt.by.equals("@me"))
-                setTransactionOfContact(debt.by, transaction);
-            if (!debt.to.equals("@me"))
-                setTransactionOfContact(debt.to, transaction);
-        }
-    }
-
-    private void addTransaction(Transaction transaction, DatabaseReference user) {
-        DatabaseReference t = user.child("transactions").push();
         t.child("title").setValue(transaction.title);
+        t.child("created_by").setValue(mUserId);
 
         for (Debt debt: transaction.debts) {
             DatabaseReference d = t.child("debts").push();
-
-            if (user.equals(mUser)) {
-                d.child("by").setValue(debt.by);
-                d.child("to").setValue(debt.to);
-            } else {
-                if (debt.by.equals("@me")) {
-                    d.child("by_uid").setValue(mUser.getKey());
-                    d.child("to").setValue("@me");
-                } else {
-                    d.child("by").setValue("@me");
-                    d.child("to_uid").setValue(mUser.getKey());
-                }
-            }
             d.child("amount").setValue(debt.amount);
-            d.child("unit").setValue(debt.unit);
+            setContactToDebt(d.child("to"), debt.to, t.getKey(),
+                    d.child("to_cid"));
+            setContactToDebt(d.child("by"), debt.by, t.getKey(),
+                    d.child("by_cid"));
         }
     }
 
-    private void setTransactionOfContact(String contact_id, final Transaction transaction) {
-        if (mContacts.containsKey(contact_id)) {
-            Contact c = mContacts.get(contact_id);
-            if (c.contact_id != null){
-                // Get contact's email and check if user with that email exists
-                // if so, add transaction to that user
-                Cursor cursor = mContext.getContentResolver().query(
-                        ContactsContract.CommonDataKinds.Email.CONTENT_URI,
-                        null,
-                        ContactsContract.Contacts._ID + " = ?",
-                        new String[]{c.contact_id},
-                        null
-                );
+    // Make sure getContacts has been called before calling this method
+    private void setContactToDebt(final DatabaseReference d, final String contactId,
+                                  final String transactionId,
+                                  final DatabaseReference alteranteD) {
+        if (contactId.equals("@me")) {
+            d.setValue(mUserId);
+        }
+        else {
+            getUserWithContact(contactId, new DatabaseListener<String>() {
+                @Override
+                public void handle(String uid) {
+                    if (uid == null)
+                        alteranteD.setValue(contactId);
+                    else {
+                        d.setValue(uid);
 
-                if (cursor != null) {
-                    if (cursor.moveToFirst()) {
-                        final String email = cursor.getString(cursor.getColumnIndex(
-                                ContactsContract.CommonDataKinds.Email.DATA
-                        ));
-                        mDatabase.child("users").orderByChild("email").equalTo(email)
-                                .addListenerForSingleValueEvent(new ValueEventListener() {
-                                    @Override
-                                    public void onDataChange(DataSnapshot dataSnapshot) {
-                                        if (dataSnapshot.exists()) {
-                                            for (DataSnapshot d: dataSnapshot.getChildren()) {
-                                                addTransaction(transaction, d.getRef());
-                                            }
-                                        }
-                                    }
-
-                                    @Override
-                                    public void onCancelled(DatabaseError databaseError) {
-                                        Log.w(TAG, "load user's emails cancelled",
-                                                databaseError.toException());
-                                    }
-                                });
-
+                        mDatabase.child("users").child(uid).child("transactions")
+                                .child(transactionId).setValue(true);
                     }
-                    cursor.close();
                 }
-            }
+            });
         }
     }
 
@@ -148,15 +114,14 @@ public class Database {
         mUser.child("transactions").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot data) {
-                for (DataSnapshot t: data.getChildren()) {
-                    Transaction tt = new Transaction(Database.this, t);
-                    if (!tt.invalid)
-                        mTransactions.put(
-                                t.getKey(),
-                                tt
-                        );
+                if (data.exists()) {
+                    for (DataSnapshot t : data.getChildren()) {
+                        if (t.getValue(Boolean.class)) {
+                            getTransaction(t.getKey(), listener);
+                        }
+                    }
                 }
-                listener.handle(mTransactions);
+//                listener.handle(mTransactions);
             }
 
             @Override
@@ -164,6 +129,102 @@ public class Database {
                 Log.w(TAG, "load transactions cancelled", databaseError.toException());
             }
         });
+    }
+
+    private void getTransaction(final String tid,
+                                final DatabaseListener<HashMap<String, Transaction>> listener) {
+
+        mDatabase.child("transactions").child(tid)
+                .addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot t) {
+                        if (t.exists()) {
+                            Transaction transaction = new Transaction();
+
+                            if (t.child("title").exists())
+                                transaction.title = t.child("title").getValue(String.class);
+
+                            if (!t.child("created_by").exists() ||
+                                    !t.child("debts").exists())
+                                return;
+
+                            boolean creator = t.child("created_by").getValue(String.class)
+                                    .equals(mUserId);
+
+                            DataSnapshot debts = t.child("debts");
+                            for (DataSnapshot d: debts.getChildren()) {
+
+                                if ((!d.child("to_cid").exists() && !d.child("to").exists())
+                                        || (!d.child("by_cid").exists() && !d.child("by").exists())
+                                        || (!d.child("amount").exists())) {
+                                    continue;
+                                }
+
+                                Debt debt = new Debt();
+                                debt.amount = d.child("amount").getValue(Float.class);
+
+                                debt.to = "";
+                                debt.by = "";
+
+                                if (d.child("to_cid").exists()) {
+                                    if (!creator)
+                                        return;
+                                    debt.to = d.child("to_cid").getValue(String.class);
+                                }
+                                else
+                                    setDebtContact(d.child("to"), debt, true, listener);
+
+                                if (d.child("by_cid").exists()) {
+                                    if (!creator)
+                                        return;
+                                    debt.by = d.child("by_cid").getValue(String.class);
+                                }
+                                else
+                                    setDebtContact(d.child("by"), debt, false,listener);
+
+                                transaction.debts.add(debt);
+                            }
+
+                            mTransactions.put(tid, transaction);
+                            listener.handle(mTransactions);
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        Log.w(TAG, "cancelled transaction",
+                                databaseError.toException());
+                    }
+                });
+    }
+
+    private void setDebtContact(DataSnapshot d, final Debt debt, final boolean to,
+                                final DatabaseListener<HashMap<String, Transaction>> listener) {
+
+        if (d.getValue(String.class).equals(mUserId)) {
+            if (to)
+                debt.to = "@me";
+            else
+                debt.by = "@me";
+        }
+        else {
+            String uid = d.getValue(String.class);
+            getContactWithUser(uid, new DatabaseListener<Cursor>() {
+                @Override
+                public void handle(Cursor data) {
+                    if (data != null) {
+                        Contact c = SelectPeopleActivity.addContact(
+                                Database.this, data
+                        );
+                        if (to)
+                            debt.to = c.contact_id;
+                        else
+                            debt.by = c.contact_id;
+                        listener.handle(mTransactions);
+                    }
+                }
+            });
+        }
     }
 
     private static HashMap<String, Contact> mContacts = new HashMap<>();
@@ -208,26 +269,124 @@ public class Database {
                     }
                 },
                 transactions: {
-                    t1: {
-                        title: "optional"
-                        debts: {
-                            a1: {
-                                by: @me
-                                to: u2 (contact_id)
-                                amount: xxx
-                                unit: "Rs."
-                            }
-                            a2: {
-                                by_uid: u1 (user_id)
-                                to: @me
-                                amount: xxx
-                            }
-                        }
-                    }
+                    t1: true,
+                    t2: true,
                 },
             },
             ...
         },
+        transactions: {
+            t1 {
+                title: "optional"
+                created_by: u1
+                debts: {
+                    a1: {
+                        by: u1
+                        to: u2
+                        amount: xxx
+                    }
+                    a2: {
+                        by_cid: c1
+                        to: u1          // cid is id of contact belonging to creator (u1)
+                        amount: xxx     // for other users, ignore this debt
+                    }
+                }
+            }
+        }
      */
+
+
+
+
+    // Make sure getContacts has been called before calling this method
+    public void getUserWithContact(String contactId, final DatabaseListener<String> handler) {
+        if (mContacts.containsKey(contactId)) {
+            Contact c = mContacts.get(contactId);
+            if (c.contact_id != null) {
+                // Get contact's email and check if user with that email exists
+                // if so, add transaction to that user
+                Cursor cursor = mContext.getContentResolver().query(
+                        ContactsContract.CommonDataKinds.Email.CONTENT_URI,
+                        null,
+                        ContactsContract.Contacts._ID + " = ?",
+                        new String[]{c.contact_id},
+                        null
+                );
+
+                if (cursor != null) {
+                    if (cursor.moveToFirst()) {
+                        final String email = cursor.getString(cursor.getColumnIndex(
+                                ContactsContract.CommonDataKinds.Email.DATA
+                        ));
+                        mDatabase.child("users").orderByChild("email").equalTo(email)
+                                .addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(DataSnapshot dataSnapshot) {
+                                        if (dataSnapshot.exists()) {
+                                            if (dataSnapshot.getChildrenCount() > 0) {
+                                                handler.handle(
+                                                        dataSnapshot
+                                                                .getChildren()
+                                                                .iterator().next().getKey()
+                                                );
+                                                return;
+                                            }
+                                        }
+                                        handler.handle(null);
+                                    }
+
+                                    @Override
+                                    public void onCancelled(DatabaseError databaseError) {
+                                        Log.w(TAG, "load user's emails cancelled",
+                                                databaseError.toException());
+                                        handler.handle(null);
+                                    }
+                                });
+
+                    }
+                    cursor.close();
+                }
+            }
+        }
+    }
+
+    // Make sure getContacts has been called before calling this method
+    public void getContactWithUser(final String userId, final DatabaseListener<Cursor> handler) {
+        mDatabase.child("users").orderByKey().equalTo(userId)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        if (dataSnapshot.exists()) {
+                            String email = dataSnapshot.child(userId)
+                                    .child("email").getValue(String.class);
+
+                            // Get contact with same email
+                            Cursor cursor = mContext.getContentResolver().query(
+                                    ContactsContract.CommonDataKinds.Email.CONTENT_URI,
+                                    null,
+                                    ContactsContract.CommonDataKinds.Email.DATA + " = ?",
+                                    new String[]{email},
+                                    null
+                            );
+
+                            if (cursor != null) {
+                                if (cursor.moveToFirst()) {
+                                    handler.handle(cursor);
+                                    return;
+                                }
+                                cursor.close();
+                            }
+                        }
+                        handler.handle(null);
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        Log.w(TAG, "load user's emails cancelled",
+                                databaseError.toException());
+                        handler.handle(null);
+                    }
+                });
+    }
 
 }

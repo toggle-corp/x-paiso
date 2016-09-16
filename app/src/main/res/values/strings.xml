@@ -9,13 +9,14 @@
 
     <string name="action_settings">Settings</string>
 
+    <string name="done">Done</string>
+
     <string name="navigation_drawer_summary">Summary</string>
     <string name="navigation_drawer_transactions">Transactions</string>
     <string name="navigation_drawer_peoples">Peoples</string>
     <string name="navigation_drawer_groups">Groups</string>
     <string name="amount">Amount</string>
-    <string name="unit">Unit</string>
-    <string name="default_unit">Rs.</string>
     <string name="transaction_name">Title</string>
     <string name="debt_by">Debt by:</string>
+    <string name="enter_transaction_message">Enter transaction detail</string>
 </resources>

@@ -58,14 +58,13 @@ public class AddTransactionActivity extends AppCompatActivity {
                 float amount = Float.parseFloat(
                         ((EditText)findViewById(R.id.amount)).getText().toString()
                 );
-                String unit = ((EditText)findViewById(R.id.unit)).getText().toString();
 
                 for (String cid: mSelectedContacts) {
                     Debt debt;
                     if (byThem)
-                        debt = new Debt("@me", cid, amount, unit);
+                        debt = new Debt("@me", cid, amount);
                     else
-                        debt = new Debt(cid, "@me", amount, unit);
+                        debt = new Debt(cid, "@me", amount);
                     transaction.debts.add(debt);
                 }
 

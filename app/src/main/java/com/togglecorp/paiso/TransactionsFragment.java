@@ -38,7 +38,6 @@ public class TransactionsFragment extends Fragment  {
             @Override
             public void handle(HashMap<String, Contact> data) {
                 mContacts = data;
-                mContacts.put("@me", new Contact("@me"));
             }
         });
         mDatabase.getTransactions(new DatabaseListener<HashMap<String, Transaction>>() {
@@ -55,22 +54,32 @@ public class TransactionsFragment extends Fragment  {
         // TODO: sort transactions by date
 
         mTransactions.clear();
+
+        mContacts.put("@me", new Contact("@me"));
+
         for (String t_key: transactions.keySet()) {
             Transaction t = transactions.get(t_key);
             Transaction t1 = new Transaction();
 
             t1.title = t.title;
+
             for (Debt d: t.debts) {
+                if (d.by == null || d.to == null
+                        || !mContacts.containsKey(d.by)
+                        || !mContacts.containsKey(d.to))
+                    continue;
+
                 t1.debts.add(new Debt(
                         mContacts.get(d.by).username,
                         mContacts.get(d.to).username,
-                        d.amount,
-                        d.unit
+                        d.amount
                 ));
             }
 
             mTransactions.add(t1);
         }
+
+        mContacts.remove("@me");
 
         mAdapter.setTransactions(mTransactions);
     }

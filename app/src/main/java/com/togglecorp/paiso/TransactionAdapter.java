@@ -104,7 +104,6 @@ public class TransactionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                 else
                     viewHolder.debtTo.setText("By " + currentDebt.by);
 
-                viewHolder.unit.setText(currentDebt.unit);
                 viewHolder.amount.setText(String.valueOf(currentDebt.amount));
                 break;
         }
@@ -129,13 +128,11 @@ public class TransactionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
     public class TransactionDebtViewHolder extends RecyclerView.ViewHolder{
         protected TextView debtTo;
-        protected TextView unit;
         protected TextView amount;
 
         TransactionDebtViewHolder(View v){
             super(v);
             debtTo = (TextView)v.findViewById(R.id.debt_to);
-            unit = (TextView)v.findViewById(R.id.unit);
             amount = (TextView)v.findViewById(R.id.amount);
         }
     }
