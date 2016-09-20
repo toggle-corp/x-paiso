@@ -1,19 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:background="?android:attr/selectableItemBackground"
-    android:clickable="true"
-    android:focusable="true"
     android:orientation="horizontal"
     android:layout_width="match_parent"
-    android:paddingLeft="@dimen/layout_spacing_md"
-    android:paddingRight="@dimen/layout_spacing_md"
+    android:clickable="true"
+    android:background="?android:attr/selectableItemBackground"
     android:layout_height="@dimen/layout_people_height">
     <LinearLayout
         android:layout_width="@dimen/layout_people_height"
         android:layout_height="@dimen/layout_people_height"
         android:gravity="center">
-        <de.hdodenhof.circleimageview.CircleImageView
-            android:id="@+id/avatar"
+        <ImageView
             android:src="@drawable/ic_avatar"
             android:layout_width="@dimen/avatar_size_md"
             android:layout_height="@dimen/avatar_size_md" />
@@ -21,21 +17,22 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="@dimen/layout_spacing_sm"
-        android:gravity="center_vertical"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:paddingLeft="@dimen/layout_spacing_md"
+        android:paddingRight="@dimen/layout_spacing_md"
+        android:gravity="center_vertical">
         <TextView
             android:id="@+id/name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Frozen Helium"
-            android:textAllCaps="true"
             android:textSize="@dimen/text_size_lg"
-            android:layout_marginBottom="@dimen/layout_spacing_xs"/>
+            android:textStyle="bold"
+            android:layout_marginBottom="@dimen/layout_spacing_xs"
+            android:text="Frozen Helium"/>
         <TextView
             android:id="@+id/extra"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="frozenhelium@togglecorp.com"/>
+            android:text="+977-9841919399"/>
     </LinearLayout>
 </LinearLayout>

@@ -1,6 +1,8 @@
 package com.togglecorp.paiso;
 
+import android.app.Fragment;
 import android.content.Intent;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -31,6 +33,11 @@ public class MainActivity extends AppCompatActivity {
     private static FirebaseDatabase mFDb;
 
     private TransactionsFragment mTransactionsFragment = new TransactionsFragment();
+    private PeoplesFragment mPeoplesFragment = new PeoplesFragment();
+    private SummaryFragment mSummaryFragment = new SummaryFragment();
+
+    private FloatingActionButton mAddButton;
+    private boolean mToggleAddButton = false;
 
     public User getUser() {
         return mUser;
@@ -58,23 +65,14 @@ public class MainActivity extends AppCompatActivity {
         // Initialize the nav drawer
         mDrawerLayout = (DrawerLayout)findViewById(R.id.drawer);
         mNavigationView = (NavigationView)findViewById(R.id.navigation_view);
-        mNavigationView.setNavigationItemSelectedListener(
-                new NavigationView.OnNavigationItemSelectedListener() {
-                    @Override
-                    public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-                        if (menuItem.getItemId() == R.id.nav_transactions) {
-                            getFragmentManager().beginTransaction()
-                                    .replace(R.id.frame_content, mTransactionsFragment)
-                                    .commit();
-                        }
-
-                        menuItem.setChecked(true);
-                        mDrawerLayout.closeDrawers();
-                        return true;
-                    }
-                }
-        );
+        mNavigationView.setNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+        getFragmentManager().beginTransaction()
+                .replace(R.id.frame_content, mSummaryFragment)
+                .commit();
         mNavigationView.setCheckedItem(R.id.nav_summary);
+
+
+        mAddButton = (FloatingActionButton)findViewById(R.id.add_button);
 
         // Set the nav drawer header
         View header = mNavigationView.getHeaderView(0);
@@ -111,7 +109,47 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    @Override
+
+    private NavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener = new NavigationView.OnNavigationItemSelectedListener() {
+        @Override
+        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+            Fragment fragment = null;
+            switch(item.getItemId()){
+                case R.id.nav_transactions:
+                    fragment = mTransactionsFragment;
+                    mToggleAddButton = true;
+                    break;
+                case R.id.nav_peoples:
+                    fragment = mPeoplesFragment;
+                    mToggleAddButton = true;
+                    break;
+                case R.id.nav_summary:
+                    fragment = mSummaryFragment;
+                    mToggleAddButton = true;
+            }
+            if(fragment != null){
+                mAddButton.hide(new FloatingActionButton.OnVisibilityChangedListener() {
+                    @Override
+                    public void onHidden(FloatingActionButton fab) {
+                        super.onHidden(fab);
+                        if(mToggleAddButton){
+                            fab.show();
+                        }
+
+                    }
+                });
+
+                getFragmentManager().beginTransaction()
+                        .replace(R.id.frame_content, fragment)
+                        .commit();
+                item.setChecked(true);
+
+            }
+            mDrawerLayout.closeDrawers();
+            return true;
+        }
+    };
+
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
