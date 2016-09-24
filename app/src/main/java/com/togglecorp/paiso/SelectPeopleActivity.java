@@ -48,7 +48,7 @@ public class SelectPeopleActivity extends AppCompatActivity {
             finish();
             return;
         }
-        mDatabase = new Database(mUser);
+        mDatabase = new Database(mUser, this);
 
         // Initialize buttons
         findViewById(R.id.add_contact_button).setOnClickListener(new View.OnClickListener() {
@@ -73,15 +73,15 @@ public class SelectPeopleActivity extends AppCompatActivity {
         findViewById(R.id.done).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (mAdapter.getSelections().size() == 0) {
+                if (mAdapter.getSelection() == null) {
                     Toast.makeText(SelectPeopleActivity.this, "You haven't selected any contact",
                             Toast.LENGTH_SHORT).show();
                     return;
                 }
 
-                AddTransactionActivity.mContacts = mAdapter.getContacts();
-                AddTransactionActivity.mSelectedContacts = mAdapter.getSelections();
-                startActivity(new Intent(SelectPeopleActivity.this, AddTransactionActivity.class));
+                Intent intent = new Intent(SelectPeopleActivity.this, AddTransactionActivity.class);
+                intent.putExtra("contact", mAdapter.getSelection());
+                startActivity(intent);
                 finish();
             }
         });
@@ -92,13 +92,12 @@ public class SelectPeopleActivity extends AppCompatActivity {
         contactsList.setLayoutManager(new LinearLayoutManager(this));
         contactsList.setAdapter(mAdapter);
 
-        mAdapter.setContacts(new HashMap<String, Contact>());
-
         // Get contacts
-        mDatabase.getContacts(new DatabaseListener<HashMap<String, Contact>>() {
+        Database.ContactsListeners.add(new DatabaseListener<Void>() {
             @Override
-            public void handle(HashMap<String, Contact> data) {
-                mAdapter.setContacts(data);
+            public void handle(Void data) {
+                if (mAdapter != null)
+                    mAdapter.refresh();
             }
         });
     }
@@ -121,26 +120,8 @@ public class SelectPeopleActivity extends AppCompatActivity {
             }
         }
     }
-
-    public static Contact addContact(Database database, Cursor cursor) {
-        String id = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
-        String username =
-                cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
-        String photoUrl =
-                cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Email.PHOTO_URI));
-
-
-        Contact contact = new Contact();
-        contact.contact_id = id;
-        contact.username = username;
-        if (photoUrl != null)
-            contact.photo_uri = Uri.parse(photoUrl);
-        database.addContact(contact);
-        return contact;
-    }
-
     private void addContact(Cursor cursor) {
-        addContact(mDatabase, cursor);
+        mDatabase.addContact(cursor);
     }
 
     public void addContact(String username) {

@@ -61,6 +61,15 @@ public class MainActivity extends AppCompatActivity {
             finish();
             return;
         }
+        final Database database = new Database(mUser, this);
+        Database.ContactsListeners.add(new DatabaseListener<Void>() {
+            @Override
+            public void handle(Void data) {
+                if (database != null)
+                    database.getTransactions();
+            }
+        });
+        database.getContacts();
 
         // Initialize the nav drawer
         mDrawerLayout = (DrawerLayout)findViewById(R.id.drawer);

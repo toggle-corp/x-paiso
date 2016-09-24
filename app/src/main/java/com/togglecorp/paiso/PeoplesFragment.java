@@ -8,9 +8,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-/**
- * Created by fhx on 9/19/16.
- */
 public class PeoplesFragment extends Fragment {
     private static final String TAG = "Peoples Fragment";
 

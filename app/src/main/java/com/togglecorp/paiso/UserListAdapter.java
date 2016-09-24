@@ -18,42 +18,27 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.ViewHolder> {
 
     private Context mContext;
-    private HashMap<String, Contact> mContacts;
     private List<String> mContactKeys;
-    private List<String> mSelections = new ArrayList<>();
+    private String mSelection = null;
 
     public UserListAdapter(Context context) {
         mContext = context;
-        setContacts(new HashMap<String, Contact>());
+        refresh();
     }
 
-    public HashMap<String, Contact> getContacts() {
-        return mContacts;
+    public String getSelection() {
+        return mSelection;
     }
 
-    public List<String> getSelections() {
-        return mSelections;
-    }
-
-    public void setContacts(HashMap<String, Contact> contacts) {
-        mContacts = contacts;
+    public void refresh() {
+        HashMap<String, Contact> contacts = Database.Contacts;
         notifyDataSetChanged();
 
         mContactKeys = new ArrayList<>();
-        if (mContacts.size() > 0) {
-            for (String c : mContacts.keySet()) {
+        if (contacts.size() > 0) {
+            for (String c : contacts.keySet()) {
                 mContactKeys.add(c);
             }
-            Collections.sort(mContactKeys, new Comparator<String>() {
-                @Override
-                public int compare(String s1, String s2) {
-                    if (mContacts.get(s1).recent == null)
-                        return 1;
-                    if (mContacts.get(s2).recent == null)
-                        return -1;
-                    return mContacts.get(s1).recent.compareTo(mContacts.get(s2).recent);
-                }
-            });
         }
     }
 
@@ -66,7 +51,7 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.ViewHo
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        Contact contact = mContacts.get(mContactKeys.get(position));
+        Contact contact = Database.Contacts.get(mContactKeys.get(position));
         holder.name.setText(contact.username);
         if (contact.photo_uri != null) {
             holder.avatar.setImageURI(contact.photo_uri);
@@ -74,7 +59,8 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.ViewHo
             holder.avatar.setImageDrawable(mContext.getDrawable(R.drawable.ic_avatar));
         }
 
-        holder.root.setPressed(mSelections.contains(mContactKeys.get(position)));
+        holder.root.setPressed(mSelection != null &&
+                mSelection.equals(mContactKeys.get(position)));
     }
 
     @Override
@@ -99,11 +85,7 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.ViewHo
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    String cid = mContactKeys.get(getAdapterPosition());
-                    if (mSelections.contains(cid))
-                        mSelections.remove(cid);
-                    else
-                        mSelections.add(cid);
+                    mSelection = mContactKeys.get(getAdapterPosition());
                     notifyDataSetChanged();
                 }
             });

@@ -15,15 +15,14 @@ import java.util.List;
 
 public class AddTransactionActivity extends AppCompatActivity {
 
-    public static HashMap<String, Contact> mContacts;
-    public static List<String> mSelectedContacts;
-
     private Database mDatabase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_transaction);
+
+        final String selectedContact = getIntent().getExtras().getString("contact");
 
         // Initialize the toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -44,29 +43,22 @@ public class AddTransactionActivity extends AppCompatActivity {
             finish();
             return;
         }
-        mDatabase = new Database(user);
+        mDatabase = new Database(user, this);
 
         // Set the done handler
         findViewById(R.id.done).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                boolean byThem = ((ToggleButton)findViewById(R.id.debt_by)).isChecked();
 
                 Transaction transaction = new Transaction();
                 transaction.title = ((EditText)findViewById(R.id.title)).getText().toString();
 
-                float amount = Float.parseFloat(
-                        ((EditText)findViewById(R.id.amount)).getText().toString()
-                );
+                transaction.amount = Float.parseFloat(((EditText)findViewById(R.id.amount))
+                        .getText().toString());
 
-                for (String cid: mSelectedContacts) {
-                    Debt debt;
-                    if (byThem)
-                        debt = new Debt("@me", cid, amount);
-                    else
-                        debt = new Debt(cid, "@me", amount);
-                    transaction.debts.add(debt);
-                }
+                transaction.byOther = !((ToggleButton)findViewById(R.id.debt_by)).isChecked();
+
+                transaction.other = Database.Contacts.get(selectedContact);
 
                 mDatabase.addTransaction(transaction);
                 finish();

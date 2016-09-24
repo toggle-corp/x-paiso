@@ -4,13 +4,11 @@ import android.app.Fragment;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 public class TransactionsFragment extends Fragment  {
@@ -18,7 +16,6 @@ public class TransactionsFragment extends Fragment  {
 
     private TransactionAdapter mAdapter;
     private List<Transaction> mTransactions = new ArrayList<>();
-    private HashMap<String, Contact> mContacts;
 
     private Database mDatabase;
 
@@ -33,53 +30,29 @@ public class TransactionsFragment extends Fragment  {
 
         // Initialize the database
         final User user = ((MainActivity)getActivity()).getUser();
-        mDatabase = new Database(user);
-        mDatabase.getContacts(new DatabaseListener<HashMap<String, Contact>>() {
+        mDatabase = new Database(user, getActivity());
+
+        updateTransactions();
+        Database.TransactionsListeners.add(new DatabaseListener<Void>() {
             @Override
-            public void handle(HashMap<String, Contact> data) {
-                mContacts = data;
-            }
-        });
-        mDatabase.getTransactions(new DatabaseListener<HashMap<String, Transaction>>() {
-            @Override
-            public void handle(HashMap<String, Transaction> data) {
-                updateTransactions(data);
+            public void handle(Void data) {
+                if (mAdapter != null)
+                    updateTransactions();
             }
         });
 
         return root;
     }
 
-    private void updateTransactions(HashMap<String, Transaction> transactions) {
+    private void updateTransactions() {
         // TODO: sort transactions by date
 
         mTransactions.clear();
 
-        mContacts.put("@me", new Contact("@me"));
-
-        for (String t_key: transactions.keySet()) {
-            Transaction t = transactions.get(t_key);
-            Transaction t1 = new Transaction();
-
-            t1.title = t.title;
-
-            for (Debt d: t.debts) {
-                if (d.by == null || d.to == null
-                        || !mContacts.containsKey(d.by)
-                        || !mContacts.containsKey(d.to))
-                    continue;
-
-                t1.debts.add(new Debt(
-                        mContacts.get(d.by).username,
-                        mContacts.get(d.to).username,
-                        d.amount
-                ));
-            }
-
-            mTransactions.add(t1);
+        for (String t_key: Database.Transactions.keySet()) {
+            Transaction t = Database.Transactions.get(t_key);
+            mTransactions.add(t);
         }
-
-        mContacts.remove("@me");
 
         mAdapter.setTransactions(mTransactions);
     }

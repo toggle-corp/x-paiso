@@ -1,11 +1,10 @@
 package com.togglecorp.paiso;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class Transaction {
-    public String title;
-    public List<Debt> debts = new ArrayList<>();
+    public String title = "";
 
-    public Transaction() {}
+    public Contact other = null;
+    public boolean byOther = true;
+
+    public float amount = 0;
 }

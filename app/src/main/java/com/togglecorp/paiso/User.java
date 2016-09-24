@@ -1,6 +1,5 @@
 package com.togglecorp.paiso;
 
-import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
@@ -19,14 +18,7 @@ public class User implements GoogleApiClient.OnConnectionFailedListener {
     private FirebaseUser mFirebaseUser;
     private static GoogleApiClient mGoogleApiClient;
 
-    private Context mContext;
-
-    public Context getContext() {
-        return mContext;
-    }
-
     public User(FragmentActivity activity) {
-        mContext = activity;
 
         // Initialize Firebase Auth
         mFirebaseAuth = FirebaseAuth.getInstance();

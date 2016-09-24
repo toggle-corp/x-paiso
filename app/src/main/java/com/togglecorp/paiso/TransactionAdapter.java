@@ -47,9 +47,10 @@ public class TransactionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         // TODO: implement logic for grouping
         for(int n=0; n < mTransactions.size(); n++){
             mItemMap.add(new Item(ITEM_TITLE, n, -1));
-            for(int m=0; m<mTransactions.get(n).debts.size(); m++){
-                mItemMap.add(new Item(ITEM_DEBT, n, m));
-            }
+            mItemMap.add(new Item(ITEM_DEBT, n, 0));
+//            for(int m=0; m<mTransactions.get(n).debts.size(); m++){
+//                mItemMap.add(new Item(ITEM_DEBT, n, m));
+//            }
         }
     }
 
@@ -97,14 +98,21 @@ public class TransactionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                 break;
             case ITEM_DEBT:
                 TransactionDebtViewHolder viewHolder = (TransactionDebtViewHolder)holder;
-                Debt currentDebt = mTransactions.get(currentItem.position).debts.get(currentItem.offset);
-
-                if (currentDebt.by.equals("@me"))
-                    viewHolder.debtTo.setText("To " + currentDebt.to);
+                Transaction t = mTransactions.get(currentItem.position);
+                if (t.byOther)
+                    viewHolder.debtTo.setText("By " + t.other.username);
                 else
-                    viewHolder.debtTo.setText("By " + currentDebt.by);
+                    viewHolder.debtTo.setText("To " + t.other.username);
+                viewHolder.amount.setText(String.valueOf(t.amount));
 
-                viewHolder.amount.setText(String.valueOf(currentDebt.amount));
+//                Debt currentDebt = mTransactions.get(currentItem.position).debts.get(currentItem.offset);
+
+//                if (currentDebt.by.equals("@me"))
+//                    viewHolder.debtTo.setText("To " + currentDebt.to);
+//                else
+//                    viewHolder.debtTo.setText("By " + currentDebt.by);
+//
+//                viewHolder.amount.setText(String.valueOf(currentDebt.amount));
                 break;
         }
     }

@@ -6,11 +6,12 @@ import com.google.firebase.database.DataSnapshot;
 
 public class Contact {
     public String username;
-    public String contact_id = null;
-    public Integer recent = null;
+    public String email;
+    public String contactId = null;
+    public String userId = null;
     public Uri photo_uri = null;
 
-    public boolean invalid = false;
+    public String contactUid = null;        // contact id in firebase
 
     public Contact() {}
 
@@ -19,17 +20,15 @@ public class Contact {
     }
 
     public Contact(DataSnapshot data) {
-        if (!data.child("username").exists()) {
-            invalid = true;
-            return;
-        }
-
         username = data.child("username").getValue(String.class);
+        contactUid = data.getKey();
 
+        if (data.child("email").exists())
+            email = data.child("email").getValue(String.class);
         if (data.child("contact_id").exists())
-            contact_id = data.child("contact_id").getValue(String.class);
-        if (data.child("recent").exists())
-            recent = data.child("recent").getValue(Integer.class);
+            contactId = data.child("contact_id").getValue(String.class);
+        if (data.child("user_id").exists())
+            userId = data.child("user_id").getValue(String.class);
         if (data.child("photo_uri").exists())
             photo_uri = Uri.parse(data.child("photo_uri").getValue(String.class));
     }
